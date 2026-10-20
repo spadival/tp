@@ -67,7 +67,7 @@ import { initDiagnosticsPanel, showDiagnosticsPanel, hideDiagnosticsPanel, toggl
 import { loadBundle, unloadBundle, getActiveBundle, getActiveBundleName, handleBundleKeyDown, handleBundleNavigate, setActiveBundle, registerBundleCleanup } from './loader.js';
 import { getBundleNames, getBundle, logDependencyWarnings } from '../bundles/registry.js';
 import { isValidHttpUrl, sanitizeCss, safeLocalStorageSet, once } from './utils.js';
-import { addCard, getCardById } from '../ui/cards.js';
+import { addCard, getCardById, getCards } from '../ui/cards.js';
 import featureLoader from '../features/index.js';
 import textInputProtection from '../features/text-input-protection.js';
 import userscriptEngine from '../features/userscripts.js';
@@ -801,6 +801,23 @@ async function init() {
  * Initialize when on the portal page
  */
 async function initPortalPage() {
+  // [shai] GeoHotStar launcher: TizenBrew app control passes ?geo=hotstar -> open the JioHotstar card directly.
+  try {
+    if (/[?&]geo=hotstar\b/.test(capturedSearch || window.location.search || '')) {
+      var geoCards = getCards() || [];
+      var geoCard = null;
+      for (var gi = 0; gi < geoCards.length; gi++) {
+        if (geoCards[gi] && /(^|\.|\/\/)(www\.)?(jio)?hotstar\.com/i.test(geoCards[gi].url || '')) { geoCard = geoCards[gi]; break; }
+      }
+      if (geoCard) {
+        log('GeoHotStar: opening card ' + (geoCard.name || geoCard.url));
+        try { if (document.body) document.body.style.visibility = 'hidden'; } catch (e) { /* ignore */ }
+        loadSite(geoCard);
+        return;
+      }
+      warn('GeoHotStar: no JioHotstar card found');
+    }
+  } catch (e) { warn('GeoHotStar launch failed: ' + e.message); }
   // Check for a cross-site navigation relay request from a target site.
   // installLinkInterceptor() sends the browser here with #crossnav=BASE64({cardId, targetUrl, history, forward})
   // so the portal can look up the full card config from its localStorage and
