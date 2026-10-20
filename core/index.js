@@ -50,6 +50,7 @@ import { initPolyfills, hasPolyfill, getLoadedPolyfills } from '../polyfills/ind
 import { KEYS } from '../input/keys.js';
 import { initInputHandler, executeColorAction, registerKeyHandler, setBackHandler } from '../input/handler.js';
 import { initPointer, isPointerActive, togglePointer } from '../input/pointer.js';
+import { initHotstarMenu } from './hotstar-menu.js';
 import { wrapTextInputs, unwrapTextInputs, activateInput, deactivateInput, isIMEActive } from '../input/text-input.js';
 import { 
   enableScrollIntoView, disableScrollIntoView, setScrollEnabled, scrollElementIntoView,
@@ -773,6 +774,7 @@ async function init() {
     // Step 6: Initialize input handler
     initInputHandler();
     log('Input handler initialized');
+    try { initHotstarMenu(); } catch (e) {}
 
     // Register built-in matchers for payload-less detection
     registerBuiltInMatchers();
