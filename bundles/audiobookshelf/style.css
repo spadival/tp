@@ -1,0 +1,2247 @@
+/**
+ * Audiobookshelf Bundle Styles for TizenPortal
+ * TV-optimized styles for ABS (Tailwind v4 + Nuxt).
+ */
+
+/* Scrollbars are handled by global features (hideScrollbars/cssReset). */
+
+/* SHELF LABEL VISIBILITY FIX: keep labels above the divider bar. */
+
+/* The shelf divider (wooden bar) - LOWER z-index */
+.bookshelfDividerCategorized {
+  z-index: 5 !important;
+}
+
+/* Cards and their content - HIGHER z-index than divider */
+[id^="book-card-"],
+[id^="series-card-"],
+[id^="collection-card-"],
+[id^="author-card-"] {
+  z-index: 10 !important;
+  position: relative !important;
+}
+
+/* Shelf category labels ("Continue Listening", etc.) - highest z-index */
+.categoryPlacard {
+  z-index: 30 !important;
+}
+
+/* FILTER/SORT BAR: visually place toolbar in appbar (no DOM moves). */
+
+/* Position toolbar absolutely to overlay on appbar - left of the icons */
+#toolbar {
+  position: fixed !important;
+  top: 0 !important;
+  right: 320px !important;  /* Clear all right icons: stats(40) + upload(40) + settings(40) + user(148) + margins */
+  left: auto !important;
+  width: auto !important;
+  height: 64px !important;  /* Match appbar height */
+  z-index: 100 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 0 16px !important;
+  margin: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Fix text color for legibility - white text on dark appbar */
+#toolbar,
+#toolbar * {
+  color: #ffffff !important;
+}
+
+/* Toolbar buttons styling */
+#toolbar button,
+#toolbar [role="button"] {
+  padding: 8px 12px !important;
+  min-height: 40px !important;
+  white-space: nowrap !important;
+  color: #ffffff !important;
+  background: transparent !important;
+}
+
+/* Hover state for toolbar buttons */
+#toolbar button:hover,
+#toolbar [role="button"]:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Remove the old tp-toolbar-container stuff since we're not using it anymore */
+.tp-toolbar-container {
+  display: none !important;
+}
+
+/* SEARCH BOX: add padding so text clears the magnifier icon. */
+
+/* Add left padding to search input for the magnifying glass icon */
+#appbar input,
+#appbar input[type="text"],
+#appbar input[type="search"] {
+  padding-left: 40px !important;  /* Space for magnifying glass on left */
+}
+
+/* NOTE: Do NOT style #appbar .material-symbols broadly - it breaks the nav icons! */
+
+/* FILTER/SORT DROPDOWNS: widen and improve focusability. */
+
+/* Filter/sort control wrappers */
+.libraryFilterMenu,
+[class*="library-filter"],
+[class*="library-sort"],
+[class*="FilterSelect"],
+[class*="SortSelect"] {
+  min-width: 180px !important;
+}
+
+/* Filter dropdown trigger button */
+#filter-by-btn,
+button[aria-label*="filter" i],
+button[aria-label*="Filter" i],
+[class*="filter"] button,
+.filter-dropdown,
+.sort-dropdown {
+  min-width: 140px !important;
+}
+
+/* Sort dropdown trigger */
+#sort-by-btn,
+button[aria-label*="sort" i],
+button[aria-label*="Sort" i],
+[class*="sort"] button {
+  min-width: 140px !important;
+}
+
+/* Dropdown menus when open */
+.ui-dropdown-menu,
+[role="menu"],
+[role="listbox"],
+.dropdown-menu {
+  min-width: 180px !important;
+  max-width: 300px !important;
+}
+
+/* Dropdown items - make navigable with spacing */
+[role="menuitem"],
+[role="option"],
+.dropdown-item,
+.ui-dropdown-menu > div,
+.ui-dropdown-menu > a,
+.ui-dropdown-menu > button,
+[role="menu"] > div,
+[role="menu"] > button,
+[role="listbox"] > div,
+.libraryFilterMenu li,
+.libraryFilterMenu ul > li,
+.ui-dropdown-menu li,
+.ui-dropdown-menu ul li {
+  display: block !important;
+  padding: 8px 12px !important;
+  margin: 2px 0 !important;
+  min-height: 36px !important;
+  cursor: pointer !important;
+}
+
+/* Filter dropdown back button (arrow left icon) */
+.ui-dropdown-menu li span.mdi-arrow-left,
+.ui-dropdown-menu li .material-symbols {
+  margin-right: 8px !important;
+}
+
+
+/* CSS VAR POLYFILL (Chrome 47): explicit Tailwind spacing fallbacks. */
+
+/* Image constraints - CRITICAL for Chrome 47 */
+img {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+/* Logo sizing (appbar) - w-8 h-8, sm:w-10 sm:h-10 */
+#appbar img,
+.nuxt-link-active img {
+  width: 40px !important;
+  min-width: 40px !important;
+  height: 40px !important;
+  max-width: 40px !important;
+}
+
+/* Width utilities that use var(--spacing) */
+.w-8 { width: 32px !important; }
+.w-9 { width: 36px !important; }
+.w-10 { width: 40px !important; }
+.w-12 { width: 48px !important; }
+.w-16 { width: 64px !important; }
+.w-20 { width: 80px !important; }
+.w-32 { width: 128px !important; }
+.w-40 { width: 160px !important; }
+.w-48 { width: 192px !important; }
+.w-52 { width: 208px !important; }
+.w-64 { width: 256px !important; }
+.w-80 { width: 320px !important; }
+.w-full { width: 100% !important; }
+
+/* Height utilities */
+.h-4 { height: 16px !important; }
+.h-5 { height: 20px !important; }
+.h-8 { height: 32px !important; }
+.h-9 { height: 36px !important; }
+.h-10 { height: 40px !important; }
+.h-12 { height: 48px !important; }
+.h-16 { height: 64px !important; }
+.h-20 { height: 80px !important; }
+.h-full { height: 100% !important; }
+.h-screen { height: 100vh !important; }
+.max-h-screen { max-height: 100vh !important; }
+
+/* Em-based utilities - ABS uses these for relative sizing */
+.h-6e { height: 1.5em !important; }
+.h-8e { height: 2em !important; }
+.h-1e { height: 0.25em !important; }
+.pt-6e { padding-top: 1.5em !important; }
+.my-6e { margin-top: 1.5em !important; margin-bottom: 1.5em !important; }
+.mx-2e { margin-left: 0.5em !important; margin-right: 0.5em !important; }
+.pl-8e { padding-left: 2em !important; }
+.-bottom-6e { bottom: -1.5em !important; }
+.left-4e { left: 1em !important; }
+.left-8e { left: 2em !important; }
+.w-44e { width: 11em !important; }
+
+/* Progress bars (homepage/library cards) - keep slim and consistent */
+[cy-id="progressBar"],
+.box-shadow-progressbar {
+  height: 6px !important;
+  min-height: 6px !important;
+  max-height: 6px !important;
+  border-radius: 3px !important;
+}
+
+/* Min/max width */
+.min-w-5 { min-width: 20px !important; }
+.min-w-8 { min-width: 32px !important; }
+.min-w-10 { min-width: 40px !important; }
+.min-w-32 { min-width: 128px !important; }
+.min-w-48 { min-width: 192px !important; }
+.max-w-52 { max-width: 208px !important; }
+.max-w-64 { max-width: 256px !important; }
+.max-w-80 { max-width: 320px !important; }
+.max-w-full { max-width: 100% !important; }
+
+/* Spacing/margins - Tailwind uses calc(var(--spacing)*N) */
+.m-1 { margin: 4px !important; }
+.m-2 { margin: 8px !important; }
+.mx-1 { margin-left: 4px !important; margin-right: 4px !important; }
+.mx-2 { margin-left: 8px !important; margin-right: 8px !important; }
+.mx-3 { margin-left: 12px !important; margin-right: 12px !important; }
+.my-1 { margin-top: 4px !important; margin-bottom: 4px !important; }
+.my-2 { margin-top: 8px !important; margin-bottom: 8px !important; }
+.mr-1 { margin-right: 4px !important; }
+.mr-2 { margin-right: 8px !important; }
+.mr-4 { margin-right: 16px !important; }
+.mr-6 { margin-right: 24px !important; }
+.ml-1 { margin-left: 4px !important; }
+.ml-2 { margin-left: 8px !important; }
+.ml-3 { margin-left: 12px !important; }
+.ml-5 { margin-left: 20px !important; }
+.mt-1 { margin-top: 4px !important; }
+.pt-1 { padding-top: 4px !important; }
+.-mt-px { margin-top: -1px !important; }
+.-ml-2 { margin-left: -8px !important; }
+
+/* Padding */
+.p-1 { padding: 4px !important; }
+.p-2 { padding: 8px !important; }
+.p-4 { padding: 16px !important; }
+.p-5 { padding: 20px !important; }
+.px-1 { padding-left: 4px !important; padding-right: 4px !important; }
+.px-2 { padding-left: 8px !important; padding-right: 8px !important; }
+.px-3 { padding-left: 12px !important; padding-right: 12px !important; }
+.px-4 { padding-left: 16px !important; padding-right: 16px !important; }
+.px-6 { padding-left: 24px !important; padding-right: 24px !important; }
+.px-8 { padding-left: 32px !important; padding-right: 32px !important; }
+.py-1 { padding-top: 4px !important; padding-bottom: 4px !important; }
+.py-2 { padding-top: 8px !important; padding-bottom: 8px !important; }
+.py-6 { padding-top: 24px !important; padding-bottom: 24px !important; }
+.pr-1 { padding-right: 4px !important; }
+.pr-2 { padding-right: 8px !important; }
+.pl-3 { padding-left: 12px !important; }
+.pr-10 { padding-right: 40px !important; }
+.pb-4 { padding-bottom: 16px !important; }
+
+/* Gap utilities */
+.gap-1 { gap: 4px !important; }
+.gap-2 { gap: 8px !important; }
+.gap-4 { gap: 16px !important; }
+
+/* Border radius */
+.rounded { border-radius: 4px !important; }
+.rounded-sm { border-radius: 2px !important; }
+.rounded-md { border-radius: 6px !important; }
+.rounded-lg { border-radius: 8px !important; }
+.rounded-full { border-radius: 9999px !important; }
+.rounded-b-md { border-bottom-left-radius: 6px !important; border-bottom-right-radius: 6px !important; }
+
+/* Z-index */
+.z-10 { z-index: 10 !important; }
+.z-40 { z-index: 40 !important; }
+.z-50 { z-index: 50 !important; }
+.z-60 { z-index: 60 !important; }
+
+/* Text sizes */
+.text-xs { font-size: 0.75rem !important; line-height: 1rem !important; }
+.text-sm { font-size: 0.875rem !important; line-height: 1.25rem !important; }
+.text-base { font-size: 1rem !important; line-height: 1.5rem !important; }
+.text-lg { font-size: 1.125rem !important; line-height: 1.75rem !important; }
+.text-xl { font-size: 1.25rem !important; line-height: 1.75rem !important; }
+.text-2xl { font-size: 1.5rem !important; line-height: 2rem !important; }
+.text-3xl { font-size: 1.875rem !important; line-height: 2.25rem !important; }
+
+/* Flexbox utilities - Chrome 47 needs vendor prefixes */
+.flex {
+  display: -webkit-box !important;
+  display: -webkit-flex !important;
+  display: flex !important;
+}
+.inline-flex {
+  display: -webkit-inline-box !important;
+  display: -webkit-inline-flex !important;
+  display: inline-flex !important;
+}
+.flex-col {
+  -webkit-box-orient: vertical !important;
+  -webkit-box-direction: normal !important;
+  -webkit-flex-direction: column !important;
+  flex-direction: column !important;
+}
+.flex-row {
+  -webkit-box-orient: horizontal !important;
+  -webkit-box-direction: normal !important;
+  -webkit-flex-direction: row !important;
+  flex-direction: row !important;
+}
+.flex-wrap {
+  -webkit-flex-wrap: wrap !important;
+  flex-wrap: wrap !important;
+}
+.flex-nowrap {
+  -webkit-flex-wrap: nowrap !important;
+  flex-wrap: nowrap !important;
+}
+.items-center {
+  -webkit-box-align: center !important;
+  -webkit-align-items: center !important;
+  align-items: center !important;
+}
+.items-start {
+  -webkit-box-align: start !important;
+  -webkit-align-items: flex-start !important;
+  align-items: flex-start !important;
+}
+.justify-center {
+  -webkit-box-pack: center !important;
+  -webkit-justify-content: center !important;
+  justify-content: center !important;
+}
+.justify-start {
+  -webkit-box-pack: start !important;
+  -webkit-justify-content: flex-start !important;
+  justify-content: flex-start !important;
+}
+.justify-between {
+  -webkit-box-pack: justify !important;
+  -webkit-justify-content: space-between !important;
+  justify-content: space-between !important;
+}
+.grow {
+  -webkit-box-flex: 1 !important;
+  -webkit-flex-grow: 1 !important;
+  flex-grow: 1 !important;
+}
+.shrink-0 {
+  -webkit-flex-shrink: 0 !important;
+  flex-shrink: 0 !important;
+}
+
+/* Display utilities */
+.block { display: block !important; }
+.inline-block { display: inline-block !important; }
+.hidden { display: none !important; }
+
+/* IMPORTANT: Override hidden for md:block at 1920px viewport */
+/* We're always at 1920px on TV, so md: breakpoints should apply */
+.hidden.md\\:block,
+[class*="hidden"][class*="md:block"] {
+  display: block !important;
+}
+.hidden.sm\\:flex,
+[class*="hidden"][class*="sm:flex"] {
+  display: -webkit-box !important;
+  display: -webkit-flex !important;
+  display: flex !important;
+}
+.hidden.md\\:flex,
+[class*="hidden"][class*="md:flex"] {
+  display: -webkit-box !important;
+  display: -webkit-flex !important;
+  display: flex !important;
+}
+.hidden.lg\\:block,
+[class*="hidden"][class*="lg:block"] {
+  display: block !important;
+}
+
+/* Position utilities */
+.relative { position: relative !important; }
+.absolute { position: absolute !important; }
+.fixed { position: fixed !important; }
+.inset-0 { top: 0 !important; right: 0 !important; bottom: 0 !important; left: 0 !important; }
+.inset-y-0 { top: 0 !important; bottom: 0 !important; }
+.top-0 { top: 0 !important; }
+.right-0 { right: 0 !important; }
+.bottom-0 { bottom: 0 !important; }
+.left-0 { left: 0 !important; }
+
+/* Overflow utilities */
+.overflow-hidden { overflow: hidden !important; }
+.overflow-auto { overflow: auto !important; }
+.overflow-x-auto { overflow-x: auto !important; }
+.overflow-y-auto { overflow-y: auto !important; }
+.overflow-x-hidden { overflow-x: hidden !important; }
+.overflow-y-hidden { overflow-y: hidden !important; }
+
+/* Text utilities */
+.truncate {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+.text-center { text-align: center !important; }
+.text-left { text-align: left !important; }
+.text-right { text-align: right !important; }
+.font-bold { font-weight: 700 !important; }
+.font-normal { font-weight: 400 !important; }
+.italic { font-style: italic !important; }
+.underline { text-decoration: underline !important; }
+.leading-3 { line-height: 0.75rem !important; }
+.leading-4 { line-height: 1rem !important; }
+
+/* Cursor */
+.cursor-pointer { cursor: pointer !important; }
+
+/* Colors - Audiobookshelf palette */
+.text-white { color: #ffffff !important; }
+.text-gray-100 { color: #f7fafc !important; }
+.text-gray-200 { color: #edf2f7 !important; }
+.text-gray-300 { color: #e2e8f0 !important; }
+.text-gray-400 { color: #a0aec0 !important; }
+.text-gray-500 { color: #718096 !important; }
+.bg-bg { background-color: #232323 !important; }
+.bg-primary { background-color: #2d3748 !important; }
+.bg-fg { background-color: #3d4759 !important; }
+.bg-success { background-color: #48bb78 !important; }
+.bg-warning { background-color: #ed8936 !important; }
+.bg-error { background-color: #f56565 !important; }
+.text-success { color: #48bb78 !important; }
+.text-error { color: #f56565 !important; }
+.text-red-500 { color: #f56565 !important; }
+
+/* Borders */
+.border { border-width: 1px !important; }
+.border-t { border-top-width: 1px !important; }
+.border-b { border-bottom-width: 1px !important; }
+.border-gray-500 { border-color: #718096 !important; }
+.border-gray-600 { border-color: #4a5568 !important; }
+.border-black-200 { border-color: #1a1a1a !important; }
+.border-black-300 { border-color: #2d2d2d !important; }
+
+/* Shadows */
+.shadow-xs { box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05) !important; }
+.shadow-sm { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important; }
+.shadow-md { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important; }
+.shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important; }
+
+/* Pointer events */
+.pointer-events-none { pointer-events: none !important; }
+.pointer-events-auto { pointer-events: auto !important; }
+
+/* Opacity utilities - BUT allow inline styles to override for modals */
+/* Vue modals start with opacity-0 class then set inline style opacity:1 */
+/* We can't use !important on opacity-0 or it breaks modal visibility */
+.opacity-0:not([style*="opacity"]) { opacity: 0; }
+.opacity-90 { opacity: 0.9 !important; }
+
+/* Modals with inline opacity should respect that inline style */
+.modal[style*="opacity: 1"],
+.modal[style*="opacity:1"] {
+  opacity: 1 !important;
+}
+
+/* ==========================================================================
+   LINK COLOR RESET
+   Override default browser blue link color to white.
+   ABS uses white/gray text for links, not browser default blue.
+   ========================================================================== */
+
+/* All links should inherit color, not use browser default blue */
+a, a:link, a:visited, a:hover, a:active {
+  color: inherit !important;
+  text-decoration: none !important;
+}
+
+/* Siderail links - white text */
+#siderail-buttons-container a,
+[role="toolbar"][aria-orientation="vertical"] a {
+  color: #ffffff !important;
+}
+
+/* Appbar links - white/gray text */
+#appbar a,
+#appbar a:link,
+#appbar a:visited {
+  color: #ffffff !important;
+}
+#appbar a:hover {
+  color: #edf2f7 !important;
+}
+
+/* Material symbols icons should not be colored blue */
+.material-symbols,
+span.material-symbols {
+  color: inherit !important;
+}
+
+/* Icon text in siderail */
+#siderail-buttons-container .material-symbols {
+  color: #ffffff !important;
+  font-size: 1.5rem !important;
+}
+
+/* Icon text in appbar */
+#appbar .material-symbols {
+  color: #ffffff !important;
+}
+
+/* ==========================================================================
+   BUTTON BACKGROUND FIX - CHROME 47 TRANSPARENCY ISSUE
+   Chrome 47 may render buttons with white backgrounds by default.
+   Chrome 47 does NOT support :has() pseudo-class, so we use broader selectors.
+   Force transparent backgrounds on all ABS icon buttons.
+   ========================================================================== */
+
+/* All buttons in appbar - force transparent background */
+#appbar button {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+}
+
+/* ALL buttons in the app - nuclear option for Chrome 47 */
+button {
+  background-color: transparent !important;
+}
+
+/* Buttons with specific classes */
+button.icon-btn,
+button[class*="icon"],
+.iconBtn,
+[class*="IconBtn"],
+button.rounded-full,
+button.rounded-md,
+button.rounded-lg,
+.btn-icon,
+.icon-button {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* Context menu / triple-dot buttons */
+button[aria-label*="more"],
+button[aria-label*="More"],
+button[aria-label*="menu"],
+button[aria-label*="Menu"],
+button[aria-label*="options"],
+button[aria-label*="Options"] {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* Page wrapper buttons (content area) */
+#page-wrapper button,
+.page button {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* Ensure siderail buttons are also transparent */
+#siderail-buttons-container a,
+#siderail-buttons-container button {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* ==========================================================================
+   ELEMENT SPACING - GAPS FOR SPATIAL NAVIGATION
+   CSS-first approach: Minimum 4px gap between focusable elements.
+   This ensures spatial navigation can reliably distinguish adjacent elements.
+   ========================================================================== */
+
+/* CSS variable for minimum spatial navigation gap */
+:root {
+  --tp-spatial-gap: 4px;
+}
+
+/* Siderail link spacing - gap between each navigation item */
+#siderail-buttons-container {
+  gap: var(--tp-spatial-gap, 4px) !important;
+}
+#siderail-buttons-container a {
+  margin-bottom: var(--tp-spatial-gap, 4px) !important;
+}
+
+/* Appbar element spacing */
+#appbar > .flex > * {
+  margin-right: 8px !important;
+}
+#appbar > .flex > *:last-child {
+  margin-right: 0 !important;
+}
+
+/* Appbar icon buttons need more margin */
+#appbar a[href*="/config"],
+#appbar a[href*="/upload"],
+#appbar a[href*="/stats"],
+#appbar a[href*="/account"] {
+  margin-left: 8px !important;
+  margin-right: 8px !important;
+}
+
+/* Appbar height - h-16 = 64px */
+.w-full.h-16.bg-primary {
+  height: 64px !important;
+}
+
+/* ==========================================================================
+   BOOKSHELF ROW LAYOUT - HORIZONTAL SCROLLING
+   Book cards must display horizontally with proper gaps for spatial navigation.
+   
+   NOTE: There are TWO bookshelf layouts:
+   1. Homepage (BookShelfCategorized) - uses flexbox, normal scroll
+   2. Library page (LazyBookshelf) - uses virtual scroll with absolute + transform
+   
+   CRITICAL: Do NOT override display, flex, or align properties on homepage
+   as ABS calculates sizes dynamically and our overrides break it.
+   ========================================================================== */
+
+/* Bookshelf row container - horizontal scroll - LIBRARY PAGE */
+.bookshelfRow {
+  /* Library page uses absolute positioning, don't override display */
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+/* Categorized bookshelf row - HOMEPAGE - cards inside flex container */
+/* Default card height is 192px, plus ~50px for labels below, plus pt-6e padding */
+.categorizedBookshelfRow {
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  -webkit-overflow-scrolling: touch !important;
+  min-height: 280px !important;
+}
+
+/* The inner content div needs to NOT collapse */
+.categorizedBookshelfRow > div {
+  height: auto !important;
+  min-height: 250px !important;
+}
+
+/* The flex container with cards - MUST be horizontal row */
+.categorizedBookshelfRow .flex.items-center {
+  -webkit-box-orient: horizontal !important;
+  -webkit-box-direction: normal !important;
+  -webkit-flex-direction: row !important;
+  flex-direction: row !important;
+  -webkit-flex-wrap: nowrap !important;
+  flex-wrap: nowrap !important;
+  min-height: 220px !important;
+}
+
+/* Homepage cards only - position relative for flex layout (NOT library page) */
+/* Be specific: only target card elements directly in the flex container */
+.categorizedBookshelfRow .flex.items-center > [id^="book-card-"],
+.categorizedBookshelfRow .flex.items-center > [id^="series-card-"],
+.categorizedBookshelfRow .flex.items-center > [id^="author-card-"] {
+  position: relative !important;
+}
+
+/* Shelf category labels ("Continue Listening", etc.) */
+/* The placard sits ON TOP of the wooden divider bar - needs higher z-index */
+.categorizedBookshelfRow > div > .categoryPlacard {
+  z-index: 30 !important;
+}
+
+/* NOTE: .bookshelfDividerCategorized z-index set in SHELF LABEL VISIBILITY FIX section */
+
+/* ========================================================================== 
+   SERIES CARD LABELS - HIDDEN
+   
+   Series cards have labels that are problematic on Tizen:
+   - Height calculation issues (using em units with variable parent font-size)
+   - Opacity-0 overlay showing incorrectly
+   
+   Solution: Hide the labels entirely. Users navigate to series cards directly.
+   The card image shows the series name overlay on focus anyway.
+   ========================================================================== */
+
+/* Hide series card labels - both standard and detail variants */
+[id^="series-card-"] > .categoryPlacard,
+[id^="series-card-"] > div.relative.z-30 {
+  display: none !important;
+}
+
+/* Also hide collection card labels for consistency */
+[id^="collection-card-"] > .categoryPlacard {
+  display: none !important;
+}
+
+/* Series/collection hover overlay - keep hidden until focus */
+[id^="series-card-"] .opacity-0,
+[id^="collection-card-"] .opacity-0 {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Show overlay on focus (TV doesn't have hover) */
+[id^="series-card-"]:focus .opacity-0,
+[id^="collection-card-"]:focus .opacity-0 {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+/* Book card container - DO NOT override position or size - ABS calculates dynamically */
+[id^="book-card-"],
+[id^="series-card-"] {
+  /* CRITICAL: Do NOT set position - ABS uses position: absolute with transform: translate3d() */
+  /* CRITICAL: Do NOT set width/height - ABS calculates based on sizeMultiplier and aspectRatio */
+  /* Only override flex shrink to prevent sizing issues */
+  -webkit-flex-shrink: 0 !important;
+  flex-shrink: 0 !important;
+}
+
+/* ==========================================================================
+   VUE/NUXT HIDDEN ELEMENTS
+   Force-hide elements that Vue renders with display:none inline style.
+   Chrome 47 may have issues with Vue's conditional rendering.
+   ========================================================================== */
+
+/* Ensure inline display:none is respected */
+[style*="display: none"],
+[style*="display:none"] {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Hidden menus and dropdowns */
+.librariesDropdownMenu[style*="display: none"],
+.globalSearchMenu[style*="display: none"],
+.globalTaskRunningMenu[style*="display: none"],
+[role="menu"][style*="display: none"] {
+  display: none !important;
+}
+
+/* ==========================================================================
+   MODAL VISIBILITY FIX
+   Vue modals start with: class="modal opacity-0 hidden"
+   When shown, Vue: removes 'hidden', adds 'flex', sets inline style opacity:1
+   Our .opacity-0 !important was overriding the inline opacity:1
+   ========================================================================== */
+
+/* Modal when shown (has flex class, no hidden class) */
+.modal.flex:not(.hidden) {
+  display: -webkit-box !important;
+  display: -webkit-flex !important;
+  display: flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  z-index: 60 !important;  /* Default modal z-index from ABS */
+}
+
+/* Modal content - ensure visible and focusable */
+.modal.flex:not(.hidden) > div {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Modal hidden state - only when has hidden class */
+.modal.hidden {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* Modal with inline display:none */
+.modal[style*="display: none"] {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Cover background when not needed */
+[cy-id="coverBg"][style*="display: none"] {
+  display: none !important;
+}
+
+/* Title placeholder when image is ready */
+[cy-id="titleImageNotReady"][style*="display: none"] {
+  display: none !important;
+}
+
+/* Selection mode toolbar (when no items selected) */
+.absolute[style*="display: none"] {
+  display: none !important;
+}
+
+/* ==========================================================================
+   VIEWPORT AND LAYOUT FIX
+   ABS uses h-screen max-h-screen overflow-hidden on main container.
+   This cuts off content beyond viewport height.
+   We need to allow scrolling while maintaining proper layout.
+   ========================================================================== */
+
+/* DON'T lock html/body to fixed width - it breaks layout */
+html {
+  /* Let browser determine proper width based on viewport */
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+body {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+/* CRITICAL: Main layout uses h-screen overflow-hidden.
+   - h-screen = 100vh (KEEP - children use h-full which needs defined parent)
+   - overflow-hidden clips content (OVERRIDE to allow #bookshelf to scroll)
+   - DO NOT set height: auto - breaks h-full chain for BookShelfCategorized!
+*/
+#__layout > div.text-white.overflow-hidden {
+  overflow: visible !important;
+}
+
+/* Remove max-height constraint */
+#__layout > div.max-h-screen {
+  max-height: none !important;
+}
+
+/* But keep overflow-hidden on elements that need it (cover images, etc) */
+[id^="cover-area-"] .overflow-hidden,
+.rounded-sm.overflow-hidden,
+.bookshelfRow .overflow-hidden {
+  overflow: hidden !important;
+}
+
+/* ==========================================================================
+   FOCUS INDICATORS
+   Removed in favor of core focus styling.
+   ========================================================================== */
+
+/* Siderail layout padding (kept for visual spacing, independent of focus) */
+[role="toolbar"][aria-orientation="vertical"],
+#siderail-buttons-container {
+  padding: 8px !important;
+  overflow: visible !important;
+}
+
+/* ========================================================================
+   ENTERED CARD STATE (MULTI-ACTION MODE)
+   When user presses Enter on a multi-action card, the card is "entered"
+   and the hover buttons become visible for navigation.
+   
+   NOTE: The entered card outline is handled by core. This section handles
+   ABS-specific behaviors like showing hover buttons.
+   ======================================================================== */
+
+/* Show hover buttons when card is entered */
+.tp-card-entered [id^="cover-area-"] > div.absolute,
+.tp-card-entered [id^="cover-area-"] .group-hover\\:block,
+.tp-card-entered [id^="cover-area-"] .group-hover\\:flex,
+.tp-card-entered [id^="cover-area-"] [class*="hover:"],
+.tp-card-entered [id^="cover-area-"] [class*="opacity-0"],
+[data-tp-entered="true"] [id^="cover-area-"] > div.absolute,
+[data-tp-entered="true"] [id^="cover-area-"] .group-hover\\:block,
+[data-tp-entered="true"] [id^="cover-area-"] .group-hover\\:flex,
+[data-tp-entered="true"] [id^="cover-area-"] [class*="hover:"],
+[data-tp-entered="true"] [id^="cover-area-"] [class*="opacity-0"] {
+  display: -webkit-box !important;
+  display: -webkit-flex !important;
+  display: flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+/* Make buttons inside entered card focusable and visible */
+.tp-card-entered button,
+.tp-card-entered [role="button"],
+[data-tp-entered="true"] button,
+[data-tp-entered="true"] [role="button"] {
+  display: inline-block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+/* Focus styles are provided by core; keep entered-card visibility only. */
+
+/* ==========================================================================
+   TV-FRIENDLY TEXT INPUT WRAPPER
+   Text inputs shouldn't pop up keyboard immediately on focus.
+   We wrap them in a focusable container that shows a display value.
+   Press Enter to activate the actual input and show keyboard.
+   ========================================================================== */
+
+/* Wrapper container - focusable, shows display value */
+.tp-input-wrapper {
+  display: -webkit-box !important;
+  display: -webkit-flex !important;
+  display: flex !important;
+  -webkit-box-align: center !important;
+  -webkit-align-items: center !important;
+  align-items: center !important;
+  position: relative !important;
+  width: 100% !important;
+  height: 100% !important;
+  cursor: pointer !important;
+  background: transparent !important;
+}
+
+/* Display text (shows current value or placeholder) */
+.tp-input-display {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  padding: 8px 12px !important;
+  color: #a0aec0 !important; /* gray-400 placeholder */
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  pointer-events: none !important;
+}
+
+/* Display text with value */
+.tp-input-display.has-value {
+  color: #edf2f7 !important; /* gray-200 */
+}
+
+/* Actual input (hidden until activated) */
+.tp-input-wrapper input {
+  display: none !important;
+}
+
+/* When wrapper is in editing mode */
+.tp-input-wrapper.editing .tp-input-display {
+  display: none !important;
+}
+.tp-input-wrapper.editing input {
+  display: block !important;
+}
+
+/* Wrapper focus state handled by core */
+
+/* Hide the hint text on input wrappers - not needed on TV */
+.tp-input-wrapper::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* ==========================================================================
+   SIDERAIL (LEFT SIDEBAR) - CRITICAL FOR TV NAVIGATION
+   The sidebar has class "hidden md:block" which should show at 1920px.
+   Chrome 47 may not properly evaluate the breakpoint, so force display.
+   ========================================================================== */
+
+/* Siderail container - force visible and properly sized */
+[role="toolbar"][aria-orientation="vertical"] {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  /* Explicit sizing - w-20 = 80px */
+  width: 80px !important;
+  min-width: 80px !important;
+  max-width: 80px !important;
+  /* Position fixed below appbar */
+  position: fixed !important;
+  left: 0 !important;
+  top: 64px !important; /* h-16 = 64px appbar height */
+  bottom: 0 !important;
+  height: auto !important;
+  /* Background and z-index */
+  background-color: #232323 !important; /* bg-bg color */
+  z-index: 50 !important;
+}
+
+/* Siderail navigation links - h-20 = 80px each */
+#siderail-buttons-container a {
+  display: -webkit-box !important;
+  display: -webkit-flex !important;
+  display: flex !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-flex-direction: column !important;
+  flex-direction: column !important;
+  -webkit-box-align: center !important;
+  -webkit-align-items: center !important;
+  align-items: center !important;
+  -webkit-box-pack: center !important;
+  -webkit-justify-content: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 80px !important;
+  min-height: 80px !important;
+  padding: 8px 4px !important;
+  border-bottom: 1px solid rgba(45, 55, 72, 0.7) !important; /* border-primary/70 */
+  cursor: pointer !important;
+  text-decoration: none !important;
+}
+
+/* Siderail link icons */
+#siderail-buttons-container a .material-symbols {
+  font-size: 1.5rem !important;
+  margin-bottom: 4px !important;
+}
+
+/* Siderail link text */
+#siderail-buttons-container a p {
+  font-size: 0.9rem !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  margin: 0 !important;
+  padding-top: 6px !important;
+}
+
+/* Active siderail link indicator (yellow bar) */
+#siderail-buttons-container a .bg-yellow-400 {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 2px !important;
+  height: 100% !important;
+  background-color: #f6e05e !important; /* yellow-400 */
+}
+
+/* ==========================================================================
+   APPBAR (TOP BAR) - FIXED AT TOP
+   ========================================================================== */
+
+/* Main appbar container - h-16 = 64px */
+.w-full.h-16.bg-primary {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  max-height: 64px !important;
+  z-index: 60 !important;
+  background-color: #2d3748 !important; /* bg-primary color */
+}
+
+/* Appbar inner container */
+#appbar {
+  display: -webkit-box !important;
+  display: -webkit-flex !important;
+  display: flex !important;
+  -webkit-box-align: center !important;
+  -webkit-align-items: center !important;
+  align-items: center !important;
+  height: 100% !important;
+  padding-left: 24px !important; /* px-6 at md */
+  padding-right: 24px !important;
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+}
+
+/* Appbar flex container */
+#appbar > .flex {
+  display: -webkit-box !important;
+  display: -webkit-flex !important;
+  display: flex !important;
+  -webkit-box-align: center !important;
+  -webkit-align-items: center !important;
+  align-items: center !important;
+  height: 100% !important;
+  width: 100% !important;
+}
+
+/* Appbar logo - w-10 h-10 at sm+ */
+#appbar img {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  margin-right: 16px !important;
+}
+
+/* Appbar title - show at lg (1024px), we're at 1920px */
+#appbar h1 {
+  display: block !important;
+  font-size: 1.25rem !important;
+  margin-right: 24px !important;
+  white-space: nowrap !important;
+}
+
+/* Library dropdown button */
+#appbar button[aria-label*="Library"] {
+  height: 32px !important;
+  min-width: 100% !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
+
+/* Search input container - use ABS default width */
+/* Previously forced to 400px, now allowing natural sizing */
+
+/* Search input - ensure reasonable size */
+#appbar input[type="text"],
+#appbar input[type="search"],
+#appbar input[placeholder*="Search"],
+#appbar input[placeholder="Search.."] {
+  height: 40px !important;
+  padding: 8px 16px !important;
+  border-radius: 4px !important;
+  font-size: 16px !important;
+}
+
+
+/* Appbar icon buttons - w-8 h-8 */
+#appbar a[href*="/config"],
+#appbar a[href*="/upload"],
+#appbar a[href*="/stats"] {
+  display: -webkit-box !important;
+  display: -webkit-flex !important;
+  display: flex !important;
+  -webkit-box-align: center !important;
+  -webkit-align-items: center !important;
+  align-items: center !important;
+  -webkit-box-pack: center !important;
+  -webkit-justify-content: center !important;
+  justify-content: center !important;
+  width: 32px !important;
+  height: 32px !important;
+  margin: 0 4px !important;
+}
+
+/* User account button */
+#appbar a[href*="/account"] {
+  display: -webkit-box !important;
+  display: -webkit-flex !important;
+  display: flex !important;
+  -webkit-box-align: center !important;
+  -webkit-align-items: center !important;
+  align-items: center !important;
+  min-width: 128px !important; /* md:w-32 */
+  height: 36px !important;
+  padding: 8px 12px !important;
+  margin-left: 20px !important;
+  background-color: #3d4759 !important; /* bg-fg */
+  border: 1px solid #718096 !important; /* border-gray-500 */
+  border-radius: 4px !important;
+}
+
+/* Notifications button - force visible at md+ */
+#appbar .hidden.md\\:block,
+#appbar [class*="hidden md:block"],
+#appbar [class*="hidden sm:flex"] {
+  display: -webkit-box !important;
+  display: -webkit-flex !important;
+  display: flex !important;
+}
+
+/* Grow spacer */
+#appbar .grow {
+  -webkit-box-flex: 1 !important;
+  -webkit-flex-grow: 1 !important;
+  flex-grow: 1 !important;
+}
+
+/* ==========================================================================
+   MAIN CONTENT AREA - OFFSET FOR FIXED HEADER/SIDEBAR
+   ========================================================================== */
+
+/* Main content should be offset by appbar and siderail */
+/* Target the specific layout div, not h-screen which we've overridden */
+#__layout > div > div:not(.w-full.h-16):not([role="toolbar"]) {
+  padding-top: 64px !important; /* Appbar height */
+  padding-left: 80px !important; /* Siderail width */
+  box-sizing: border-box !important;
+}
+
+/* Alternative selector for the content below appbar */
+.text-white.max-h-screen > div:not(.w-full.h-16):not([role="toolbar"]) {
+  margin-top: 0 !important;
+}
+
+/* ==========================================================================
+   BOOKSHELF ADJUSTMENTS
+   Make book cards more TV-friendly.
+   ========================================================================== */
+
+/* Ensure bookshelf rows are scrollable horizontally */
+.categorizedBookshelfRow {
+  overflow-x: auto !important;
+  scroll-behavior: smooth !important;
+}
+
+/* Remove hover-only effects that don't work on TV */
+.bookshelfRow a,
+.categorizedBookshelfRow a {
+  cursor: pointer !important;
+}
+
+/* ==========================================================================
+   HIDE MOBILE ELEMENTS
+   Hide UI elements designed for small screens.
+   ========================================================================== */
+
+/* Mobile-specific elements (these shouldn't show at 1920px anyway) */
+.mobile-menu,
+.mobile-nav,
+[class*="mobile-only"] {
+  display: none !important;
+}
+
+/* ==========================================================================
+   MODAL ADJUSTMENTS
+   Ensure modals are navigable with D-pad.
+   ========================================================================== */
+
+
+/* Modal should be on top */
+.modal,
+[role="dialog"] {
+  z-index: 9000 !important;
+}
+
+/* ========================================================================== */
+/* Scrollbar styling and text selection are handled by global features. */
+/* ========================================================================== */
+
+/* ==========================================================================
+   PLAYER BAR (placeholder for future)
+   Player styles will be added when we analyze the player DOM.
+   ========================================================================== */
+
+
+/* ==========================================================================
+   ITEM DETAIL PAGE (/item/_id) - TV CARD-BASED LAYOUT
+   
+   Design Philosophy:
+   - Group content into distinct "cards" for spatial navigation
+   - Reduce whitespace - compact but readable
+   - Clear visual boundaries between sections
+   - Every card is a navigable unit
+   
+   Card Sections:
+   1. Hero Card: Cover + Title + Author + Progress
+   2. Actions Card: Play, Read, Edit buttons
+   3. Info Card: Duration, Series, Narrator, Tags
+   4. Description Card: Expandable synopsis
+   5. Chapters Card: Chapter list
+   ========================================================================== */
+
+/* ===== PAGE CONTAINER - Tighter padding ===== */
+#page-wrapper,
+#item-page-wrapper {
+  padding: 16px !important;
+  padding-top: 80px !important;  /* Account for fixed appbar */
+  padding-left: 96px !important;  /* Account for siderail */
+  padding-right: 24px !important;
+}
+
+/* ===== HERO SECTION: Cover + Title side by side ===== */
+#item-page-wrapper > .flex {
+  -webkit-box-orient: horizontal !important;
+  -webkit-flex-direction: row !important;
+  flex-direction: row !important;
+  -webkit-box-align: start !important;
+  -webkit-align-items: flex-start !important;
+  align-items: flex-start !important;
+  gap: 24px !important;
+  margin-bottom: 16px !important;
+}
+
+/* Cover section - left side */
+#item-page-wrapper > .flex > div:first-child {
+  -webkit-flex-shrink: 0 !important;
+  flex-shrink: 0 !important;
+  width: 240px !important;
+  min-width: 240px !important;
+}
+
+/* Cover image */
+#item-page-wrapper .covers-book-cover,
+#item-page-wrapper [class*="book-cover"] {
+  cursor: pointer !important;
+  width: 100% !important;
+  height: auto !important;
+  border-radius: 8px !important;
+}
+
+
+/* Progress bar under cover */
+#item-page-wrapper [class*="h-1"],
+#item-page-wrapper [class*="progress-bar"] {
+  height: 8px !important;
+  min-height: 8px !important;
+  border-radius: 4px !important;
+  margin-top: 12px !important;
+}
+
+/* Details section - right side */
+#item-page-wrapper > .flex > div:last-child,
+#item-page-wrapper .grow {
+  -webkit-box-flex: 1 !important;
+  -webkit-flex-grow: 1 !important;
+  flex-grow: 1 !important;
+  max-width: calc(100% - 280px) !important;
+  padding-right: 16px !important;
+}
+
+/* Title - readable but not oversized */
+#item-page-wrapper h1 {
+  font-size: 2rem !important;  /* 32px */
+  line-height: 1.2 !important;
+  margin-bottom: 4px !important;
+  font-weight: 600 !important;
+}
+
+/* Subtitle */
+#item-page-wrapper h1 + p {
+  font-size: 1.25rem !important;  /* 20px */
+  color: #a0aec0 !important;
+  margin-bottom: 8px !important;
+}
+
+/* Author/Series links - inline, compact */
+#item-page-wrapper a[href^="/series/"],
+#item-page-wrapper a[href^="/author/"] {
+  display: inline-block !important;
+  padding: 4px 10px !important;
+  border-radius: 4px !important;
+  font-size: 1rem !important;
+  margin-right: 8px !important;
+  margin-bottom: 4px !important;
+}
+
+
+/* ==========================================================================
+   ACTIONS CARD - Primary interactive section
+   Wrapped in a card with background for visual grouping
+   ========================================================================== */
+
+/* Actions container - card style */
+#item-page-wrapper .flex.items-center.justify-center,
+#item-page-wrapper .flex.items-center.flex-wrap {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 12px !important;
+  padding: 16px 20px !important;
+  gap: 12px !important;
+  margin-top: 16px !important;
+  margin-bottom: 16px !important;
+  -webkit-flex-wrap: wrap !important;
+  flex-wrap: wrap !important;
+}
+
+/* Play button - prominent but not oversized */
+#item-page-wrapper button[aria-label="Play"],
+#item-page-wrapper button:has(.material-symbols:contains("play")),
+#item-page-wrapper .bg-success {
+  min-width: 140px !important;
+  min-height: 52px !important;
+  padding: 12px 28px !important;
+  font-size: 1.125rem !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  background: #1ad691 !important;
+  color: #000 !important;
+}
+
+
+/* Secondary action buttons */
+#item-page-wrapper .ui-btn,
+#item-page-wrapper button.flex.items-center {
+  min-width: 100px !important;
+  min-height: 48px !important;
+  padding: 10px 20px !important;
+  font-size: 1rem !important;
+  border-radius: 8px !important;
+}
+
+
+/* Icon buttons (Edit, More, Bookmark) */
+#item-page-wrapper button[aria-label*="Edit"],
+#item-page-wrapper button[aria-label*="More"],
+#item-page-wrapper button[aria-label*="Bookmark"],
+#item-page-wrapper .ui-icon-btn,
+#item-page-wrapper .icon-btn {
+  min-width: 48px !important;
+  min-height: 48px !important;
+  padding: 12px !important;
+  border-radius: 8px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+
+/* Icon size */
+#item-page-wrapper .ui-icon-btn .material-symbols,
+#item-page-wrapper .icon-btn .material-symbols,
+#item-page-wrapper button .material-symbols {
+  font-size: 1.25rem !important;
+}
+
+/* ==========================================================================
+   INFO CARD - Duration, Narrator, Tags in a compact card
+   ========================================================================== */
+
+/* Duration, size, stats - compact text */
+#item-page-wrapper .text-gray-300,
+#item-page-wrapper .text-gray-400 {
+  font-size: 0.9375rem !important;  /* 15px */
+}
+
+/* Narrator link */
+#item-page-wrapper a[href^="/narrator/"] {
+  font-size: 1rem !important;
+  padding: 4px 8px !important;
+  border-radius: 4px !important;
+}
+
+
+/* Metadata pills (tags, genres) - compact */
+#item-page-wrapper [class*="bg-primary"],
+#item-page-wrapper [class*="tag"],
+#item-page-wrapper [class*="genre"] {
+  padding: 6px 12px !important;
+  font-size: 0.875rem !important;
+  margin: 3px !important;
+  border-radius: 4px !important;
+}
+
+
+/* ==========================================================================
+   DESCRIPTION CARD
+   ========================================================================== */
+
+#item-description {
+  font-size: 1rem !important;
+  line-height: 1.7 !important;
+  max-height: none !important;
+  margin-top: 12px !important;
+  margin-bottom: 12px !important;
+  padding: 12px 16px !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-radius: 8px !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Read more/less button */
+#item-page-wrapper button:has(.material-symbols:contains("expand")),
+#item-page-wrapper .text-white-50 {
+  padding: 8px 16px !important;
+  font-size: 0.875rem !important;
+  min-height: 36px !important;
+}
+
+/* ==========================================================================
+   CHAPTERS CARD - Compact list with clear navigation
+   ========================================================================== */
+
+/* Chapters section wrapper - card style */
+#item-page-wrapper [class*="chapters"],
+.chapters-table-wrapper {
+  margin-top: 20px !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+
+/* Chapters header */
+.bg-primary.px-6.py-2,
+[class*="chapters-table"] > div:first-child {
+  padding: 12px 20px !important;
+  font-size: 1.125rem !important;
+  font-weight: 600 !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-radius: 0 !important;
+}
+
+/* Chapters count badge */
+.bg-black-400.rounded-xl {
+  padding: 4px 10px !important;
+  font-size: 0.875rem !important;
+  border-radius: 6px !important;
+}
+
+/* Edit chapters button */
+.bg-primary.px-6.py-2 .ui-btn,
+[class*="chapters-table"] button {
+  min-height: 40px !important;
+  padding: 8px 16px !important;
+  font-size: 0.875rem !important;
+  border-radius: 6px !important;
+}
+
+
+/* Chapters list container */
+[class*="chapters-table"] > div:last-child,
+.chapters-list {
+  max-height: 500px !important;
+  overflow-y: auto !important;
+}
+
+/* Individual chapter row - compact but navigable */
+[class*="chapters-table"] > div > div,
+.chapter-row {
+  padding: 12px 20px !important;
+  min-height: 56px !important;
+  font-size: 1rem !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+  cursor: pointer !important;
+  display: -webkit-box !important;
+  display: -webkit-flex !important;
+  display: flex !important;
+  -webkit-box-align: center !important;
+  -webkit-align-items: center !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+
+/* Currently playing chapter */
+[class*="chapters-table"] [class*="bg-success"],
+.chapter-row.current {
+  background: rgba(26, 214, 145, 0.1) !important;
+  border-left: 4px solid #1ad691 !important;
+  padding-left: 16px !important;
+}
+
+/* Chapter number */
+.chapter-row .text-gray-500,
+[class*="chapters-table"] .font-mono {
+  font-size: 0.875rem !important;
+  min-width: 50px !important;
+  color: #9ca3af !important;
+}
+
+/* Chapter title */
+.chapter-row p,
+[class*="chapters-table"] p {
+  font-size: 1rem !important;
+  -webkit-box-flex: 1 !important;
+  -webkit-flex-grow: 1 !important;
+  flex-grow: 1 !important;
+}
+
+/* Chapter timestamp */
+.chapter-row .text-gray-400,
+[class*="chapters-table"] .font-mono.text-gray-400 {
+  font-size: 0.875rem !important;
+  min-width: 70px !important;
+  text-align: right !important;
+}
+
+/* ==========================================================================
+   TRACKS TABLE - Same card style as chapters
+   ========================================================================== */
+
+[class*="tracks-table"] {
+  margin-top: 16px !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+
+[class*="tracks-table"] > div:first-child {
+  padding: 12px 20px !important;
+  font-size: 1.125rem !important;
+  font-weight: 600 !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+[class*="tracks-table"] > div > div {
+  padding: 10px 20px !important;
+  min-height: 52px !important;
+  font-size: 0.9375rem !important;
+  cursor: pointer !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+
+/* ==========================================================================
+   MEDIA PLAYER - TV OPTIMIZED
+   From ABS: MediaPlayerContainer.vue, PlayerUi.vue, PlayerTrackBar.vue
+   
+   The player appears at bottom of screen when audio is playing.
+   Height: h-48 lg:h-40 = 192px / 160px
+   
+   TV Optimizations:
+   - Larger touch targets for remote navigation
+   - Prominent play/pause button
+   - Visible seekbar with chapter markers
+   - Clear focus indicators
+   ========================================================================== */
+
+/* Player container - z-index only, let ABS handle layout */
+#mediaPlayerContainer {
+  z-index: 10000 !important;
+}
+
+/* ==========================================================================
+   PLAYER DROPDOWNS/MENUS - Open upward since player is at bottom
+   PlaybackSpeedControl uses -top-[5.5rem] but we need to ensure it works
+   ========================================================================== */
+
+/* Playback speed dropdown - ensure it opens upward */
+#mediaPlayerContainer .absolute.-top-\[5\.5rem\],
+#mediaPlayerContainer [class*="-top-"] {
+  bottom: 100% !important;
+  top: auto !important;
+  margin-bottom: 8px !important;
+}
+
+/* Generic player menus/popovers - position above trigger */
+#mediaPlayerContainer .absolute.z-20,
+#mediaPlayerContainer [role="menu"],
+#mediaPlayerContainer [role="listbox"] {
+  bottom: 100% !important;
+  top: auto !important;
+}
+
+/* ==========================================================================
+   PLAYER TITLE/AUTHOR AREA (top section, next to cover)
+   
+   Structure from MediaPlayerContainer.vue:
+   - Cover: .absolute.left-2.top-2 (lg:left-4)
+   - Title area: .flex.items-start with dynamic pl-12/pl-18 based on cover aspect
+   
+   Problem: Tailwind responsive padding (pl-12 sm:pl-16) doesn't work in Chrome 47
+   Solution: Apply lg/TV sizes directly since we're always at 1920px
+   ========================================================================== */
+
+/* Title/author flex container - needs padding for cover */
+#mediaPlayerContainer > .flex.items-start {
+  padding-left: 96px !important;  /* pl-24 = 6rem = 96px for square covers */
+  display: -webkit-box !important;
+  display: -webkit-flex !important;
+  display: flex !important;
+  -webkit-box-align: start !important;
+  -webkit-align-items: flex-start !important;
+  align-items: flex-start !important;
+  margin-bottom: 0 !important;  /* lg:mb-0 */
+}
+
+/* Inner container with title/author/duration */
+#mediaPlayerContainer > .flex.items-start > .min-w-0 {
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+/* Title link */
+#mediaPlayerContainer > .flex.items-start a[href^="/item/"] {
+  display: block !important;
+  font-size: 1.125rem !important;  /* sm:text-lg */
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* Author row */
+#mediaPlayerContainer > .flex.items-start .text-gray-400 {
+  display: -webkit-box !important;
+  display: -webkit-flex !important;
+  display: flex !important;
+  -webkit-box-align: center !important;
+  -webkit-align-items: center !important;
+  align-items: center !important;
+  font-size: 1rem !important;  /* sm:text-base */
+  width: 40% !important;  /* lg:w-2/5 */
+}
+
+/* Duration row with schedule icon */
+#mediaPlayerContainer > .flex.items-start .text-gray-400 .font-mono {
+  font-size: 0.875rem !important;  /* sm:text-sm */
+}
+
+/* Close button - larger for TV */
+#mediaPlayerContainer > .flex.items-start button[aria-label] {
+  padding: 16px !important;  /* lg:p-4 */
+  font-size: 1.5rem !important;  /* sm:text-2xl */
+}
+
+/* ==========================================================================
+   PLAYER-UI COMPONENT
+   
+   Structure from PlayerUi.vue:
+   - Outer: .w-full.-mt-6
+   - Controls row: .w-full.relative.mb-1
+   - Center controls: .flex.justify-center (prev, -10s, play/pause, +10s, next)
+   - Aux buttons: .absolute.-top-10.right-0 (lg:top-0 lg:right-2)
+   ========================================================================== */
+
+/* Player UI wrapper - fix negative margin */
+#mediaPlayerContainer .w-full.-mt-6 {
+  margin-top: -24px !important;  /* -mt-6 = -1.5rem */
+  width: 100% !important;
+}
+
+/* Controls container row */
+#mediaPlayerContainer .w-full.-mt-6 > .w-full.relative {
+  position: relative !important;
+  width: 100% !important;
+  margin-bottom: 4px !important;
+}
+
+/* Center playback controls (prev track, -10s, play/pause, +10s, next track) */
+/* These are in .flex.justify-center or similar centered flex container */
+#mediaPlayerContainer .flex.justify-center,
+#mediaPlayerContainer .w-full.relative > .flex:not(.absolute) {
+  display: -webkit-box !important;
+  display: -webkit-flex !important;
+  display: flex !important;
+  -webkit-box-pack: center !important;
+  -webkit-justify-content: center !important;
+  justify-content: center !important;
+  -webkit-box-align: center !important;
+  -webkit-align-items: center !important;
+  align-items: center !important;
+  gap: 12px !important;  /* SPATIAL NAV: gaps between playback buttons */
+}
+
+/* Center playback buttons - ensure margins for spatial nav fallback */
+#mediaPlayerContainer .flex.justify-center button,
+#mediaPlayerContainer .w-full.relative > .flex:not(.absolute) button {
+  margin: 0 6px !important;  /* SPATIAL NAV: fallback margin if gap not supported */
+}
+
+/* Auxiliary controls (speed, volume, sleep, bookmarks, chapters, settings) */
+#mediaPlayerContainer .w-full.-mt-6 .absolute.-top-10,
+#mediaPlayerContainer .w-full.relative > .absolute.right-0,
+#mediaPlayerContainer .absolute.-top-10.right-0 {
+  position: absolute !important;
+  top: 0 !important;  /* lg:top-0 */
+  right: 8px !important;  /* lg:right-2 */
+  display: -webkit-box !important;
+  display: -webkit-flex !important;
+  display: flex !important;
+  -webkit-box-align: center !important;
+  -webkit-align-items: center !important;
+  align-items: center !important;
+  height: 100% !important;
+  gap: 8px !important;  /* SPATIAL NAV: gaps between aux buttons */
+}
+
+/* Volume control - show on TV (has hidden sm:block) */
+#mediaPlayerContainer .controls-volume-control,
+#mediaPlayerContainer [class*="volume-control"] {
+  display: block !important;
+}
+
+/* Make aux buttons focusable and larger */
+#mediaPlayerContainer .w-full.-mt-6 button {
+  min-width: 44px !important;
+  min-height: 44px !important;
+  cursor: pointer !important;
+  margin: 0 4px !important;  /* SPATIAL NAV: fallback margin if gap not supported */
+}
+
+/* ==========================================================================
+   PLAYER TRACK BAR (SEEKBAR)
+   The track bar uses Tailwind classes that may not render in Chrome 47.
+   Add explicit styles to ensure visibility.
+   ========================================================================== */
+
+/* Track bar container - bg-gray-700 in Tailwind */
+#mediaPlayerContainer .w-full.h-2.bg-gray-700,
+#mediaPlayerContainer .relative .w-full.h-2 {
+  height: 12px !important;  /* Larger for TV (was h-2 = 8px) */
+  min-height: 12px !important;
+  background-color: #374151 !important;  /* gray-700 */
+  position: relative !important;
+  cursor: pointer !important;
+  overflow: hidden !important;
+  border-radius: 4px !important;
+}
+
+/* Ready track - bg-gray-600 */
+#mediaPlayerContainer .h-full.bg-gray-600 {
+  background-color: #4b5563 !important;  /* gray-600 */
+  height: 100% !important;
+}
+
+/* Buffer track - bg-gray-500 */
+#mediaPlayerContainer .h-full.bg-gray-500 {
+  background-color: #6b7280 !important;  /* gray-500 */
+  height: 100% !important;
+}
+
+/* Played track - bg-gray-200 */
+#mediaPlayerContainer .h-full.bg-gray-200 {
+  background-color: #e5e7eb !important;  /* gray-200 */
+  height: 100% !important;
+}
+
+/* Track cursor indicator */
+#mediaPlayerContainer .h-full.w-0\.5.bg-gray-50 {
+  background-color: #f9fafb !important;  /* gray-50 */
+  width: 2px !important;
+  height: 100% !important;
+}
+
+/* ==========================================================================
+   PLAYER TIME ROW (below track bar)
+   Row with: [current time / %] [chapter title (x/y)] [time remaining]
+   Tailwind uses flex justify-between and transform which may not work
+   ========================================================================== */
+
+/* The row container - flex with space-between */
+#mediaPlayerContainer .relative.flex.items-center.justify-between {
+  display: -webkit-box !important;
+  display: -webkit-flex !important;
+  display: flex !important;
+  -webkit-box-pack: justify !important;
+  -webkit-justify-content: space-between !important;
+  justify-content: space-between !important;
+  -webkit-box-align: center !important;
+  -webkit-align-items: center !important;
+  align-items: center !important;
+  position: relative !important;
+  width: 100% !important;
+}
+
+/* Left side - current time / percentage */
+#mediaPlayerContainer .relative.flex.items-center.justify-between > .grow:first-child {
+  display: -webkit-box !important;
+  display: -webkit-flex !important;
+  display: flex !important;
+  -webkit-box-align: center !important;
+  -webkit-align-items: center !important;
+  align-items: center !important;
+  -webkit-box-flex: 1 !important;
+  -webkit-flex-grow: 1 !important;
+  flex-grow: 1 !important;
+}
+
+/* Center - chapter title, absolutely positioned */
+#mediaPlayerContainer .relative.flex.items-center.justify-between > .absolute {
+  position: absolute !important;
+  left: 50% !important;
+  -webkit-transform: translateX(-50%) !important;
+  transform: translateX(-50%) !important;
+}
+
+/* Right side - time remaining */
+#mediaPlayerContainer .relative.flex.items-center.justify-between > .grow:last-child {
+  display: -webkit-box !important;
+  display: -webkit-flex !important;
+  display: flex !important;
+  -webkit-box-align: center !important;
+  -webkit-align-items: center !important;
+  align-items: center !important;
+  -webkit-box-pack: end !important;
+  -webkit-justify-content: flex-end !important;
+  justify-content: flex-end !important;
+  -webkit-box-flex: 1 !important;
+  -webkit-flex-grow: 1 !important;
+  flex-grow: 1 !important;
+}
+
+/* ==========================================================================
+   PLAYER FOCUS STATES ONLY
+   Don't override ABS colors/layout - just add focus indicators for TV nav
+   ========================================================================== */
+
+
+/* ==========================================================================
+   PLAYER UI EXTRAS - FOCUS STATES ONLY
+   Don't override ABS positioning/colors - just add focus for TV nav
+   ========================================================================== */
+
+
+/* ==========================================================================
+   CHAPTERS MODAL (in player)
+   From ABS: modals/ChaptersModal.vue
+   ========================================================================== */
+
+/* Chapters modal container */
+[class*="chapters-modal"],
+.modals-chapters-modal {
+  max-width: 800px !important;
+  max-height: 80vh !important;
+}
+
+/* Chapter item in modal */
+[class*="chapters-modal"] > div,
+.chapters-modal-item {
+  padding: 16px 24px !important;
+  min-height: 64px !important;
+  font-size: 1.125rem !important;
+  cursor: pointer !important;
+}
+
+
+/* Current chapter highlight */
+[class*="chapters-modal"] [class*="bg-success"],
+.chapters-modal-item.current {
+  background: rgba(26, 214, 145, 0.2) !important;
+  border-left: 4px solid #1ad691 !important;
+}
+
+/* ==========================================================================
+   COLLECTION PAGE (/collection/_id)
+   From ABS: pages/collection/_id.vue
+   
+   Layout:
+   - Left: Collection cover (240px wide)
+   - Right: Title, description, action buttons
+   - Below: Books table (draggable order)
+   ========================================================================== */
+
+/* Collection page uses same #page-wrapper */
+/* Target collection-specific elements */
+
+/* Collection cover */
+.covers-collection-cover {
+  cursor: pointer !important;
+}
+
+
+/* Collection title */
+#page-wrapper h1:first-of-type {
+  font-size: 2.25rem !important;
+}
+
+/* Collection description */
+#page-wrapper .text-base.text-gray-100 {
+  font-size: 1.125rem !important;
+  line-height: 1.7 !important;
+}
+
+/* Action buttons row */
+#page-wrapper .flex.items-center button {
+  min-height: 48px !important;
+  padding: 12px 24px !important;
+  font-size: 1rem !important;
+}
+
+/* Edit button */
+#page-wrapper button[type="button"]:has(.material-symbols:contains("edit")) {
+  min-width: 48px !important;
+  min-height: 48px !important;
+}
+
+/* ==========================================================================
+   COLLECTION BOOKS TABLE
+   From ABS: tables/CollectionBooksTable.vue
+   ========================================================================== */
+
+/* Books table header */
+[class*="bg-primary"] > [class*="bg-primary"],
+[class*="collection-books"] > div:first-child {
+  padding: 16px 24px !important;
+  font-size: 1.25rem !important;
+}
+
+/* Total duration display */
+.text-sm.text-gray-200 {
+  font-size: 1rem !important;
+}
+
+/* Book row in collection */
+[class*="collection-book-table-row"],
+.collection-book-item {
+  padding: 12px 24px !important;
+  min-height: 80px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  cursor: pointer !important;
+  display: -webkit-box !important;
+  display: -webkit-flex !important;
+  display: flex !important;
+  -webkit-box-align: center !important;
+  -webkit-align-items: center !important;
+  align-items: center !important;
+  gap: 16px !important;
+}
+
+
+/* Drag handle - larger for TV */
+.drag-handle {
+  min-width: 32px !important;
+  min-height: 32px !important;
+  cursor: grab !important;
+}
+
+/* Book cover in row */
+[class*="collection-book-table-row"] .covers-book-cover,
+.collection-book-item .covers-book-cover {
+  width: 60px !important;
+  min-width: 60px !important;
+}
+
+/* Book title in row */
+[class*="collection-book-table-row"] a,
+.collection-book-item a[href^="/item/"] {
+  font-size: 1.125rem !important;
+  padding: 4px 8px !important;
+  border-radius: 4px !important;
+}
+
+
+/* Book author in row */
+[class*="collection-book-table-row"] .text-gray-400,
+.collection-book-item .text-gray-400 {
+  font-size: 1rem !important;
+}
+
+/* Book duration in row */
+[class*="collection-book-table-row"] .font-mono,
+.collection-book-item .font-mono {
+  font-size: 1rem !important;
+}
+
+/* Edit/remove buttons in row */
+[class*="collection-book-table-row"] button,
+.collection-book-item button {
+  min-width: 40px !important;
+  min-height: 40px !important;
+  opacity: 1 !important;  /* Always visible on TV */
+}
+
+/* ==========================================================================
+   PLAYLIST PAGE (/playlist/_id)
+   Similar layout to collection - reuse styles
+   ========================================================================== */
+
+/* Playlist items table */
+[class*="playlist-items"] > div:first-child {
+  padding: 16px 24px !important;
+  font-size: 1.25rem !important;
+}
+
+[class*="playlist-item-table-row"] {
+  padding: 12px 24px !important;
+  min-height: 72px !important;
+}
+
+
+/* ==========================================================================
+   SERIES PAGE (/series/_id)
+   Shows all books in a series with progress
+   ========================================================================== */
+
+/* Series header with cover collage */
+#page-wrapper .covers-group-cover {
+  cursor: pointer !important;
+}
+
+
+/* Series title */
+#page-wrapper h1[class*="series"] {
+  font-size: 2.25rem !important;
+}
+
+/* Book list in series - use same card styles */
+
+/* ==========================================================================
+   AUTHOR PAGE (/author/_id)
+   Author photo, bio, and book list
+   ========================================================================== */
+
+/* Author photo */
+#page-wrapper .covers-author-image,
+#page-wrapper img[alt*="author" i] {
+  width: 200px !important;
+  height: 200px !important;
+  border-radius: 50% !important;
+}
+
+
+/* Author name */
+#page-wrapper h1:has(+ .text-gray-400) {
+  font-size: 2.5rem !important;
+}
+
+/* Author bio */
+#page-wrapper .whitespace-pre-wrap {
+  font-size: 1.125rem !important;
+  line-height: 1.7 !important;
+}
+
+/* ==========================================================================
+   STREAMING INDICATOR
+   When player is active, pages get .streaming class
+   ========================================================================== */
+
+/* Offset content when player is visible */
+#page-wrapper.streaming,
+.page.streaming {
+  padding-bottom: 200px !important;  /* Player height + buffer */
+}
+
+/* ==========================================================================
+   BOOKMARKS MODAL
+   ========================================================================== */
+
+[class*="bookmarks-modal"] > div {
+  padding: 16px 24px !important;
+  min-height: 64px !important;
+  cursor: pointer !important;
+}
+
+
+/* Bookmark time */
+[class*="bookmarks-modal"] .font-mono {
+  font-size: 1rem !important;
+}
+
+/* Bookmark title/note */
+[class*="bookmarks-modal"] p {
+  font-size: 1.125rem !important;
+}
+
+/* Sleep timer modal */
+
+[class*="sleep-timer-modal"] button {
+  min-height: 56px !important;
+  padding: 16px 32px !important;
+  font-size: 1.25rem !important;
+  margin: 8px !important;
+}
+
+
+/* Player queue modal */
+
+[class*="player-queue"] > div {
+  padding: 12px 24px !important;
+  min-height: 72px !important;
+  cursor: pointer !important;
+}
+
+
+/* TV responsive: force desktop layouts */
+
+/* Force flex-row on all responsive containers */
+.flex-col.sm\\:flex-row,
+.flex-col.md\\:flex-row,
+.flex-col.lg\\:flex-row {
+  -webkit-box-orient: horizontal !important;
+  -webkit-flex-direction: row !important;
+  flex-direction: row !important;
+}
+
+/* Force show elements hidden on mobile */
+.hidden.sm\\:block,
+.hidden.sm\\:flex,
+.hidden.md\\:block,
+.hidden.md\\:flex,
+.hidden.lg\\:block,
+.hidden.lg\\:flex {
+  display: -webkit-box !important;
+  display: -webkit-flex !important;
+  display: flex !important;
+}
+
+/* Hide elements shown only on mobile */
+.block.sm\\:hidden,
+.flex.sm\\:hidden,
+.block.md\\:hidden,
+.flex.md\\:hidden {
+  display: none !important;
+}
+/* TV navigation enhancements */
+
+/* Generic focusable item (set by JS) */
+[data-tp-focusable="true"] {
+  cursor: pointer !important;
+}
+
+/* Collection/Playlist table rows - ensure visible focus */
+.w-full.flex.items-center.px-1,
+.w-full.flex.items-center.px-2,
+.overflow-hidden.relative > .w-full.flex {
+  cursor: pointer !important;
+  transition: background-color 0.15s ease !important;
+}
+
+/* Item detail page buttons - larger touch targets */
+#page-wrapper .ui-btn,
+#item-page-wrapper .ui-btn {
+  min-height: 48px !important;
+  min-width: 120px !important;
+  padding: 12px 24px !important;
+  font-size: 1.125rem !important;
+}
+
+#page-wrapper .ui-icon-btn,
+#item-page-wrapper .ui-icon-btn {
+  min-width: 48px !important;
+  min-height: 48px !important;
+}
+
+/* Chapters/tracks table rows - ensure clickable */
+#page-wrapper [class*="chapters"] .flex.py-2,
+#item-page-wrapper [class*="chapters"] .flex.py-2,
+[class*="bg-primary"] + div > div {
+  cursor: pointer !important;
+  min-height: 56px !important;
+}
+
+/* Play buttons on all pages - always visible (not just on hover) */
+[cy-id="playButton"],
+[cy-id="overlay"],
+.group-hover\\:opacity-100 {
+  opacity: 1 !important;
+}
+
+/* Player controls - ensure all buttons are focusable and visible */
+#mediaPlayerContainer .flex.items-center button {
+  cursor: pointer !important;
+}
+
+/* Player seekbar - make it taller and focusable */
+#mediaPlayerContainer .relative.w-full {
+  min-height: 32px !important;
+  cursor: pointer !important;
+}
+
+/* Collection table - BookTableRow.vue */
+[class*="BookTableRow"],
+.collection-books-table > div > div {
+  min-height: 80px !important;
+  padding: 12px 16px !important;
+}
+
+/* Playlist table - ItemTableRow.vue */
+[class*="ItemTableRow"],
+.playlist-items-table > div {
+  min-height: 72px !important;
+  padding: 12px 16px !important;
+}
+
+/* Make hover states visible (TV doesn't hover) */
+[class*="bg-white"],
+[class*="hover:bg"] {
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+
+

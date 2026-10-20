@@ -1,0 +1,16 @@
+{
+  "name": "audiobookshelf",
+  "displayName": "Audiobookshelf",
+  "version": "1.0.0",
+  "description": "Media controls, library navigation, and player integration for Audiobookshelf",
+  "author": "TizenPortal",
+  "homepage": "https://www.audiobookshelf.org/",
+  "viewportLock": "force",
+  "requires": ["focus-styling", "media-keys"],
+  "provides": ["media-controls", "library-navigation", "player-integration"],
+  "features": {
+    "tabindexInjection": true,
+    "scrollIntoView": true,
+    "wrapTextInputs": true
+  }
+}

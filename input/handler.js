@@ -1,0 +1,767 @@
+/**
+ * TizenPortal Input Handler
+ * 
+ * Unified key event handling for remote, IME, and color buttons.
+ * Includes card interaction model (single/multi-action cards).
+ */
+
+import { KEYS, COLOR_ACTIONS, isColorButton, getKeyName, INPUT_CONSTANTS } from './keys.js';
+import { configRead, configWrite } from '../core/config.js';
+import { toggleDiagnosticsPanel, clearDiagnosticsLogs, isDiagnosticsPanelVisible, scrollDiagnosticsLogs, cycleDiagnosticsLogFilter } from '../ui/diagnostics.js';
+import { toggleAddressBar, isAddressBarVisible } from '../ui/addressbar.js';
+import { showAddSiteEditor, showEditSiteEditor, isSiteEditorOpen, closeSiteEditor } from '../ui/siteeditor.js';
+import { showPreferences, isPreferencesOpen } from '../ui/preferences.js';
+import { getFocusedCard } from '../ui/portal.js';
+import { isPointerActive, handlePointerKeyDown, handlePointerKeyUp, togglePointer } from './pointer.js';
+import { isIMEActive, setIMEActive, getImeDismissedAt, deactivateInput } from './text-input.js';
+import {
+  isSingleActionCard,
+  isMultiActionCard,
+  getPrimaryAction,
+  getFocusableChildren,
+  enterCard,
+  exitCard,
+  isInsideCard,
+  handleOK,
+  handleBack,
+  findCardShell
+} from '../navigation/card-interaction.js';
+
+/**
+ * Simulate a full click event sequence (mousedown -> mouseup -> click)
+ * This is needed for Vue components that use @mousedown.prevent @mouseup.prevent @click.stop
+ * A simple .click() won't work because Vue intercepts at mousedown/mouseup level
+ * @param {HTMLElement} element 
+ */
+function simulateFullClick(element) {
+  if (!element) return;
+  
+  var rect = element.getBoundingClientRect();
+  var centerX = rect.left + rect.width / 2;
+  var centerY = rect.top + rect.height / 2;
+  
+  var eventInit = {
+    bubbles: true,
+    cancelable: true,
+    view: window,
+    clientX: centerX,
+    clientY: centerY,
+    screenX: centerX,
+    screenY: centerY,
+    button: 0,
+    buttons: 1
+  };
+  
+  // Dispatch full mouse event sequence
+  element.dispatchEvent(new MouseEvent('mousedown', eventInit));
+  element.dispatchEvent(new MouseEvent('mouseup', eventInit));
+  element.dispatchEvent(new MouseEvent('click', eventInit));
+}
+
+/**
+ * Long press detection threshold (milliseconds)
+ */
+var LONG_PRESS_MS = 500;
+
+/**
+ * Track key down times for long press detection
+ */
+var keyDownTimes = {};
+
+// Track recent IME cancel/done events to suppress accidental EXIT
+var imeCancelAt = 0;
+// 2-second suppression window provides fallback protection if modal
+// dismissal doesn't work perfectly. With proper blur+focus, the modal
+// should dismiss immediately and this timeout shouldn't be needed.
+var EXIT_SUPPRESS_MS = 2000;
+
+function shouldSuppressExit() {
+  var now = Date.now();
+  if (isIMEActive()) return true;
+  if (imeCancelAt && now - imeCancelAt < EXIT_SUPPRESS_MS) return true;
+  var dismissedAt = getImeDismissedAt();
+  if (dismissedAt && now - dismissedAt < EXIT_SUPPRESS_MS) return true;
+  return false;
+}
+
+function getSpatialNavigationMode() {
+  try {
+    if (!window.SpatialNavigation || typeof window.SpatialNavigation.getConfig !== 'function') {
+      return null;
+    }
+    var cfg = window.SpatialNavigation.getConfig();
+    return cfg && cfg.mode ? cfg.mode : null;
+  } catch (err) {
+    return null;
+  }
+}
+
+function isFocusableFallbackElement(element) {
+  if (!element || typeof element.focus !== 'function') return false;
+  if (element.disabled) return false;
+  if (element.getAttribute && element.getAttribute('tabindex') === '-1') return false;
+
+  var style = null;
+  try {
+    style = window.getComputedStyle ? window.getComputedStyle(element) : null;
+  } catch (e) {
+    style = null;
+  }
+  if (style && (style.display === 'none' || style.visibility === 'hidden')) return false;
+
+  if (!element.getBoundingClientRect) return false;
+  var rect = element.getBoundingClientRect();
+  if (!rect || rect.width <= 0 || rect.height <= 0) return false;
+
+  var vw = window.innerWidth || document.documentElement.clientWidth || 1920;
+  var vh = window.innerHeight || document.documentElement.clientHeight || 1080;
+  var inViewport = rect.bottom > 0 && rect.top < vh && rect.right > 0 && rect.left < vw;
+  return inViewport;
+}
+
+function getViewportFocusableElements() {
+  var selector = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+  var nodes = document.querySelectorAll(selector);
+  var result = [];
+  for (var i = 0; i < nodes.length; i++) {
+    if (isFocusableFallbackElement(nodes[i])) {
+      result.push(nodes[i]);
+    }
+  }
+  return result;
+}
+
+function pickEdgeFocusable(direction, candidates, originRect) {
+  if (!candidates || !candidates.length) return null;
+
+  var best = null;
+  var bestValue = direction === 'down' ? -Infinity : Infinity;
+  var preferRelative = !!originRect;
+
+  function candidateValue(rect) {
+    return direction === 'down' ? rect.bottom : rect.top;
+  }
+
+  function isRelativeMatch(rect) {
+    if (!originRect) return true;
+    if (direction === 'down') return rect.top >= originRect.top + 2;
+    return rect.bottom <= originRect.bottom - 2;
+  }
+
+  for (var pass = 0; pass < 2; pass++) {
+    for (var i = 0; i < candidates.length; i++) {
+      var el = candidates[i];
+      var rect = el.getBoundingClientRect();
+      if (!rect) continue;
+      if (preferRelative && pass === 0 && !isRelativeMatch(rect)) continue;
+
+      var val = candidateValue(rect);
+      if (
+        !best ||
+        (direction === 'down' && val > bestValue) ||
+        (direction === 'up' && val < bestValue)
+      ) {
+        best = el;
+        bestValue = val;
+      }
+    }
+    if (best) return best;
+  }
+
+  return null;
+}
+
+function tryDirectionalScrollFallback(direction) {
+  if (direction !== 'down' && direction !== 'up') return false;
+
+  var origin = document.activeElement;
+  var originRect = origin && origin.getBoundingClientRect ? origin.getBoundingClientRect() : null;
+
+  var beforeY = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+  var vh = window.innerHeight || document.documentElement.clientHeight || 1080;
+  var step = Math.max(120, Math.floor(vh * 0.22));
+  var delta = direction === 'down' ? step : -step;
+
+  window.scrollBy(0, delta);
+
+  var afterY = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+  if (afterY === beforeY) {
+    return false;
+  }
+
+  var candidates = getViewportFocusableElements();
+  var target = pickEdgeFocusable(direction, candidates, originRect);
+  if (target) {
+    try {
+      target.focus();
+      return true;
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  // Scrolled successfully even if no focus target was found yet.
+  return true;
+}
+
+function handleDirectionalArrow(direction) {
+  if (!window.SpatialNavigation || typeof window.SpatialNavigation.navigate !== 'function') {
+    return false;
+  }
+
+  try {
+    if (window.SpatialNavigation.navigate(direction)) {
+      return true;
+    }
+  } catch (err) {
+    console.warn('TizenPortal [Navigation]: Directional navigate error:', err.message);
+  }
+
+  return tryDirectionalScrollFallback(direction);
+}
+
+
+/**
+ * Custom key handlers registered by bundles
+ */
+var customHandlers = [];
+
+/**
+ * Optional override for the BACK key on non-portal pages.
+ * When set, called before the default history.back().
+ * Return true to consume the event and skip history.back().
+ */
+var backHandler = null;
+
+/**
+ * Initialize the input handler
+ */
+export function initInputHandler() {
+  document.addEventListener('keydown', handleKeyDown, true);
+  document.addEventListener('keyup', handleKeyUp, true);
+
+  console.log('TizenPortal: Input handler initialized');
+}
+
+/**
+ * Handle keydown events
+ * @param {KeyboardEvent} event
+ */
+function handleKeyDown(event) {
+  var keyCode = event.keyCode;
+
+  // Skip repeat events for timing
+  if (!event.repeat) {
+    keyDownTimes[keyCode] = Date.now();
+  }
+
+  // Check if diagnostics panel is open - handle scrolling BEFORE logging
+  // to avoid log entries that would scroll the view back down
+  var isArrowKey = keyCode === KEYS.LEFT || keyCode === KEYS.RIGHT || 
+                   keyCode === KEYS.UP || keyCode === KEYS.DOWN;
+  if (isArrowKey && isDiagnosticsPanelVisible()) {
+    event.preventDefault();
+    event.stopPropagation();
+    // Don't log UP/DOWN when scrolling diagnostics - it would scroll back to bottom
+    if (keyCode === KEYS.UP) {
+      scrollDiagnosticsLogs(-100); // Scroll up
+    } else if (keyCode === KEYS.DOWN) {
+      scrollDiagnosticsLogs(100);  // Scroll down
+    } else if (keyCode === KEYS.LEFT) {
+      cycleDiagnosticsLogFilter(-1);
+    } else if (keyCode === KEYS.RIGHT) {
+      cycleDiagnosticsLogFilter(1);
+    }
+    return;
+  }
+
+  // Log key for diagnostics (after diagnostics scroll check)
+  var keyName = getKeyName(keyCode);
+  if (keyName) {
+    console.log('TizenPortal: Key down - ' + keyName + ' (' + keyCode + ')');
+  }
+
+  // BACK key handling
+  if (keyCode === KEYS.BACK) {
+    // If diagnostics panel is open, close it
+    if (isDiagnosticsPanelVisible()) {
+      event.preventDefault();
+      event.stopPropagation();
+      toggleDiagnosticsPanel();
+      return;
+    }
+
+    var isOnPortal = window.TizenPortal && window.TizenPortal.isPortalPage;
+    if (!isOnPortal) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (backHandler && backHandler(event) === true) return;
+      try {
+        history.back();
+      } catch (err) {
+        console.warn('TizenPortal: Back navigation failed:', err.message);
+      }
+      return;
+    }
+  }
+
+  // Check IME keys - let system handle naturally to avoid triggering modal
+  // Samsung's official sample doesn't preventDefault() on these keys, which
+  // allows the system to dismiss the keyboard naturally without the OK/Cancel
+  // modal appearing. We still handle the keys for our own cleanup.
+  if (keyCode === KEYS.IME_DONE || keyCode === KEYS.IME_CANCEL) {
+    // DON'T preventDefault() - let system handle naturally
+    // event.preventDefault();
+    // event.stopPropagation();
+    
+    // Still do our cleanup in parallel with system handling
+    // Blur the active input and explicitly focus another element
+    var activeEl = document.activeElement;
+    if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
+      // If it's a wrapped input, use deactivateInput to properly clean up
+      // (deactivateInput now explicitly focuses the wrapper after blur)
+      if (activeEl.classList.contains(INPUT_CONSTANTS.WRAPPED_INPUT_CLASS)) {
+        deactivateInput(activeEl);
+      } else {
+        // For non-wrapped inputs, blur and focus document.body
+        // This follows Samsung's official IME sample pattern
+        try {
+          activeEl.blur();
+          // Ensure body is focusable, then focus it
+          if (!document.body.hasAttribute('tabindex')) {
+            document.body.setAttribute('tabindex', '-1');
+          }
+          document.body.focus();
+        } catch (err) {
+          // Ignore
+        }
+      }
+    }
+    
+    setIMEActive(false);
+    imeCancelAt = Date.now();
+    return;
+  }
+
+  // EXIT key (10182) - Tizen IME Cancel button may send this
+  // If we're in an input context, just cancel the input, don't exit the app
+  if (keyCode === KEYS.EXIT) {
+    if (shouldSuppressExit()) {
+      event.preventDefault();
+      event.stopPropagation();
+      setIMEActive(false);
+      console.log('TizenPortal: EXIT suppressed (IME cancel/done)');
+      return;
+    }
+    // Check if we're in a text input or modal context
+    var activeEl = document.activeElement;
+    var isInputActive = activeEl && (
+      activeEl.tagName === 'INPUT' ||
+      activeEl.tagName === 'TEXTAREA' ||
+      activeEl.isContentEditable
+    );
+    
+    // Check if site editor is open
+    var editorOpen = isSiteEditorOpen();
+    
+    // Check if any modal/overlay is visible
+    var modalOpen = isDiagnosticsPanelVisible() || isAddressBarVisible();
+    
+    if (isInputActive || editorOpen || modalOpen) {
+      // Don't exit - just close the current context
+      event.preventDefault();
+      event.stopPropagation();
+      console.log('TizenPortal: EXIT suppressed (input/modal active)');
+      
+      // Close the site editor if open
+      if (editorOpen) {
+        closeSiteEditor();
+      }
+      // Close other panels if open
+      if (isDiagnosticsPanelVisible()) {
+        toggleDiagnosticsPanel();
+      }
+      if (isAddressBarVisible()) {
+        toggleAddressBar();
+      }
+      return;
+    }
+    // Otherwise let EXIT propagate to system (will exit app)
+    return;
+  }
+
+  // If IME is active, let text input handle most keys
+  if (isIMEActive() && !isColorButton(keyCode)) {
+    return;
+  }
+
+  // Give custom handlers a chance to consume the event
+  for (var i = 0; i < customHandlers.length; i++) {
+    try {
+      if (customHandlers[i](event) === true) {
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+    } catch (err) {
+      console.error('TizenPortal: Custom key handler error:', err);
+    }
+  }
+
+  // Handle pointer mode - intercepts arrow keys and enter
+  // BUT NOT when site editor is open - editor needs Enter to work
+  if (isPointerActive() && !isSiteEditorOpen()) {
+    if (handlePointerKeyDown(event)) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+  }
+
+  // Handle color buttons (short press handled on keyup for long press detection)
+  if (isColorButton(keyCode)) {
+    event.preventDefault();
+    event.stopPropagation();
+    return;
+  }
+
+  // Handle Enter key - card interaction model (not on portal - portal has its own long-press handling)
+  var isOnPortal = window.TizenPortal && window.TizenPortal.isPortalPage;
+  if (keyCode === KEYS.ENTER && !isOnPortal) {
+    // Check if we're on a card shell
+    var activeEl = document.activeElement;
+    var cardShell = findCardShell(activeEl);
+    
+    if (cardShell && !isInsideCard()) {
+      // On a card shell, not inside - handle with card interaction model
+      if (handleOK(cardShell)) {
+        event.preventDefault();
+        event.stopPropagation();
+        console.log('TizenPortal: Card interaction - OK handled');
+        return;
+      }
+    }
+    
+    // Not a card - click the focused element directly
+    // This handles dropdown items, menu items, list items, etc.
+    if (activeEl && activeEl !== document.body) {
+      // Check if element naturally handles Enter (inputs, buttons, links)
+      var tagName = activeEl.tagName.toUpperCase();
+      
+      // For INPUT and SELECT, let natural behavior occur
+      if (tagName === 'INPUT' || tagName === 'SELECT') {
+        return;
+      }
+      
+      // For all interactive elements, dispatch proper MouseEvent sequence
+      // Vue components with @mousedown.prevent @mouseup.prevent @click.stop
+      // need proper events, not just .click()
+      try {
+        simulateFullClick(activeEl);
+        event.preventDefault();
+        event.stopPropagation();
+        console.log('TizenPortal: Simulated click on', tagName);
+      } catch (err) {
+        console.warn('TizenPortal: Click simulation failed:', err.message);
+        // Fallback to basic click
+        try { activeEl.click(); } catch (e) {}
+      }
+    }
+    return;
+  }
+
+  // Handle Escape key - card interaction model
+  if (keyCode === 27) {
+    if (handleBack()) {
+      event.preventDefault();
+      event.stopPropagation();
+      console.log('TizenPortal: Card interaction - Back handled');
+      return;
+    }
+  }
+
+  // Directional mode arrow fallback:
+  // when no candidate is focusable in the requested direction, scroll one step
+  // and focus a newly visible edge element to avoid dead-end navigation.
+  if (isArrowKey && getSpatialNavigationMode() === 'directional') {
+    var direction = null;
+    if (keyCode === KEYS.LEFT) direction = 'left';
+    else if (keyCode === KEYS.RIGHT) direction = 'right';
+    else if (keyCode === KEYS.UP) direction = 'up';
+    else if (keyCode === KEYS.DOWN) direction = 'down';
+
+    if (direction && handleDirectionalArrow(direction)) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+  }
+
+  // Handle navigation keys - let spatial navigation handle these
+  // (Arrow keys will be processed by spatial-navigation-polyfill)
+}
+
+/**
+ * Handle keyup events
+ * @param {KeyboardEvent} event
+ */
+function handleKeyUp(event) {
+  var keyCode = event.keyCode;
+  var downTime = keyDownTimes[keyCode] || Date.now();
+  var duration = Date.now() - downTime;
+  var isLongPress = duration >= LONG_PRESS_MS;
+
+  delete keyDownTimes[keyCode];
+
+  // Suppress EXIT on keyup if IME was just dismissed
+  if (keyCode === KEYS.EXIT && shouldSuppressExit()) {
+    event.preventDefault();
+    event.stopPropagation();
+    setIMEActive(false);
+    console.log('TizenPortal: EXIT suppressed on keyup (IME cancel/done)');
+    return;
+  }
+
+  // Handle pointer mode keyup
+  if (isPointerActive()) {
+    if (handlePointerKeyUp(event)) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+  }
+
+  // Handle color buttons
+  if (isColorButton(keyCode)) {
+    event.preventDefault();
+    event.stopPropagation();
+    handleColorButton(keyCode, isLongPress);
+    return;
+  }
+}
+
+/**
+ * Handle color button press
+ * @param {number} keyCode
+ * @param {boolean} isLongPress
+ */
+function handleColorButton(keyCode, isLongPress) {
+  var isOnPortal = window.TizenPortal && window.TizenPortal.isPortalPage;
+
+  // If diagnostics panel is open, Yellow clears logs (short or long)
+  if (keyCode === KEYS.YELLOW && isDiagnosticsPanelVisible()) {
+    clearDiagnosticsLogs();
+    return;
+  }
+
+  var action = null;
+
+  switch (keyCode) {
+    case KEYS.RED:
+      action = isLongPress ? COLOR_ACTIONS.RED.long : COLOR_ACTIONS.RED.short;
+      break;
+    case KEYS.GREEN:
+      if (isLongPress && isOnPortal) {
+        action = 'editFocusedCard';
+      } else {
+        action = isLongPress ? COLOR_ACTIONS.GREEN.long : COLOR_ACTIONS.GREEN.short;
+      }
+      break;
+    case KEYS.YELLOW:
+      action = isLongPress ? COLOR_ACTIONS.YELLOW.long : COLOR_ACTIONS.YELLOW.short;
+      break;
+    case KEYS.BLUE:
+      action = isLongPress ? COLOR_ACTIONS.BLUE.long : COLOR_ACTIONS.BLUE.short;
+      break;
+  }
+
+  if (action) {
+    console.log('TizenPortal: Color button action - ' + action);
+    executeColorAction(action);
+  }
+}
+
+/**
+ * Execute a color button action
+ * @param {string} action
+ */
+export function executeColorAction(action) {
+  var isOnPortal = window.TizenPortal && window.TizenPortal.isPortalPage;
+  
+  switch (action) {
+    case 'addressbar':
+      // On target sites, toggle the site address bar
+      if (!isOnPortal) {
+        if (window.TizenPortal && window.TizenPortal.toggleSiteAddressBar) {
+          window.TizenPortal.toggleSiteAddressBar();
+        }
+        break;
+      }
+      // On portal page, toggle address bar
+      toggleAddressBar();
+      break;
+
+    case 'reload':
+      // Reload current page
+      if (window.TizenPortal) {
+        window.TizenPortal.showToast('Reloading...');
+      }
+      window.location.reload();
+      break;
+
+    case 'pointerMode':
+      // Toggle pointer/mouse mode
+      var pointerEnabled = togglePointer();
+      if (window.TizenPortal) {
+        window.TizenPortal.showToast('Mouse mode: ' + (pointerEnabled ? 'ON' : 'OFF'));
+      }
+      break;
+
+    case 'focusHighlight':
+      // Toggle focus highlight visibility
+      if (window.TizenPortal && window.TizenPortal.config) {
+        var features = window.TizenPortal.config.get('tp_features') || {};
+        var currentHighlight = features.focusStyling;
+        if (currentHighlight === undefined) currentHighlight = true;
+        
+        features.focusStyling = !currentHighlight;
+        window.TizenPortal.config.set('tp_features', features);
+        
+        // Reapply features to current document
+        if (window.TizenPortal._featureLoader && typeof window.TizenPortal._featureLoader.applyFeatures === 'function') {
+          window.TizenPortal._featureLoader.applyFeatures(document);
+        }
+        
+        window.TizenPortal.showToast('Focus highlight: ' + (!currentHighlight ? 'ON' : 'OFF'));
+      }
+      break;
+
+    case 'editFocusedCard':
+      // Portal only - edit currently focused card
+      if (!isOnPortal) {
+        break;
+      }
+      if (isSiteEditorOpen() || isPreferencesOpen()) {
+        break;
+      }
+
+      var focusedCard = getFocusedCard();
+      if (!focusedCard) {
+        if (window.TizenPortal) {
+          window.TizenPortal.showToast('Focus a site card to edit');
+        }
+        break;
+      }
+
+      showEditSiteEditor(focusedCard, function() {
+        if (window.TizenPortal && window.TizenPortal._refreshPortal) {
+          window.TizenPortal._refreshPortal();
+        }
+      });
+      break;
+
+    case 'preferences':
+      // Portal only - show preferences modal
+      if (!isOnPortal) {
+        // On target site, Yellow returns to portal
+        if (window.TizenPortal && window.TizenPortal.returnToPortal) {
+          window.TizenPortal.returnToPortal();
+        }
+        break;
+      }
+      // Disable while editor or preferences is open
+      if (isSiteEditorOpen() || isPreferencesOpen()) {
+        break;
+      }
+      // Open preferences modal
+      showPreferences();
+      break;
+
+    case 'addSite':
+      // Portal only - add new site
+      if (!isOnPortal) {
+        // On target site: add current page as a new card and return to portal
+        if (window.TizenPortal && window.TizenPortal.addCurrentSiteAndReturn) {
+          window.TizenPortal.addCurrentSiteAndReturn();
+        }
+        break;
+      }
+      if (isSiteEditorOpen() || isPreferencesOpen()) {
+        break;
+      }
+      // Open add site editor
+      showAddSiteEditor(function() {
+        if (window.TizenPortal && window.TizenPortal._refreshPortal) {
+          window.TizenPortal._refreshPortal();
+        }
+      });
+      break;
+
+    case 'cycleBundle':
+      // Bundle menu removed
+      break;
+
+    case 'diagnostics':
+      // Toggle diagnostics panel
+      if (!isOnPortal) {
+        // On target sites, use the site overlay diagnostics
+        if (window.TizenPortal && window.TizenPortal.toggleSiteDiagnostics) {
+          window.TizenPortal.toggleSiteDiagnostics();
+        }
+      } else {
+        toggleDiagnosticsPanel();
+      }
+      break;
+
+    case 'safeMode':
+      // Enter safe mode
+      configWrite('safeMode', true);
+      if (window.TizenPortal) {
+        window.TizenPortal.showToast('Entering safe mode...');
+      }
+      setTimeout(function() {
+        // On target site, return to portal in safe mode
+        if (window.TizenPortal && !window.TizenPortal.isPortalPage) {
+          window.TizenPortal.returnToPortal();
+        } else {
+          window.location.reload();
+        }
+      }, 500);
+      break;
+
+    default:
+      console.warn('TizenPortal: Unknown color action:', action);
+  }
+}
+
+/**
+ * Register a custom key handler
+ * @param {Function} handler - Handler function(event) that returns true to consume
+ * @returns {Function} Unregister function
+ */
+export function registerKeyHandler(handler) {
+  if (typeof handler !== 'function') {
+    console.warn('TizenPortal: registerKeyHandler requires a function');
+    return function() {};
+  }
+
+  customHandlers.push(handler);
+
+  return function() {
+    var index = customHandlers.indexOf(handler);
+    if (index !== -1) {
+      customHandlers.splice(index, 1);
+    }
+  };
+}
+
+/**
+ * Set an override handler for the BACK key on non-portal pages.
+ * When fn returns true the event is consumed and history.back() is skipped.
+ * Pass null to restore default behaviour.
+ * @param {Function|null} fn
+ */
+export function setBackHandler(fn) {
+  backHandler = typeof fn === 'function' ? fn : null;
+}
+

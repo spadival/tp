@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Local development/test data (contains sensitive info)
+abs/
+
+# GitHub/Copilot instructions (internal)
+.github/
+
+# IDE and editor files
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Temporary files
+*.tmp
+*.temp
+
+# Test coverage
+coverage/

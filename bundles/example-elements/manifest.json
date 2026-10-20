@@ -1,0 +1,8 @@
+{
+  "name": "example-elements",
+  "displayName": "Element Registration Example",
+  "version": "1.0.0",
+  "description": "Demonstrates declarative element registration system",
+  "author": "TizenPortal",
+  "viewportLock": true
+}
